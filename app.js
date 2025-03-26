@@ -26,6 +26,12 @@ const wetsuitsRouter = require('./routers/wetsuitsRouters');
 
 
 
+/* Import Checkout */
+
+const checkoutRouter = require('./routers/checkoutRouters');
+
+
+
 /* Import Surfboards for Price Range */
 
 const surfPriceRouter = require('./routers/surfPriceRouters');
@@ -47,6 +53,12 @@ app.use(express.json());
 /* Static images */
 
 app.use(express.static('public'));
+
+
+
+/* Checkout */
+
+app.use('/checkout', checkoutRouter)
 
 
 
