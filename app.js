@@ -16,7 +16,7 @@ const productsRouter = require('./routers/productsRouters');
 
 /* Import Surfboards */
 
-const surfboardRouter = require('./routers/surfboardsRouters');
+const surfboardRouter = require('./routers/surfboardsRouters')
 
 
 /* Import Leashes */
@@ -34,12 +34,6 @@ const wetsuitsRouter = require('./routers/wetsuitsRouters');
 /* Import Checkout */
 
 const checkoutRouter = require('./routers/checkoutRouters');
-
-
-
-/* Import Surfboards for Price Range */
-
-const surfPriceRouter = require('./routers/surfPriceRouters');
 
 
 
@@ -64,13 +58,6 @@ app.use(express.static('public'));
 /* Checkout */
 
 app.use('/checkout', checkoutRouter)
-
-
-
-/* Homepage - Just surfboards for Price Range */
-
-app.use('/surfboardsrange', surfPriceRouter);
-
 
 
 /* Search */
