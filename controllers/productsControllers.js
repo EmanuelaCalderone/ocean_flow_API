@@ -7,26 +7,26 @@ const connection = require('../data/db');
 /* Index */
 
 const index = (req, res) => {
+    const { order } = req.query;
 
-    /* Prendiamo le informazioni dal database */
+    let sql = `
+        SELECT products.*, categories.category_name
+        FROM products
+        JOIN categories ON products.category_id = categories.id
+    `;
 
-    const sql = `
-    SELECT products.*, categories.category_name
-    FROM products
-    JOIN categories ON products.category_id = categories.id
-    `
+    if (order) {
+        const sortDirection = order.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+        sql += ` ORDER BY products.price ${sortDirection}`;
+    }
 
     connection.query(sql, (err, results) => {
-
         if (err) return res.status(500).json({ error: 'Database query failed' });
 
-        const products = results.map(product => product)
-
+        const products = results.map(product => product);
         res.json(products);
-
-    })
-
-}
+    });
+};
 
 
 

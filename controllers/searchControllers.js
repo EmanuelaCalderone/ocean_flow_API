@@ -3,16 +3,24 @@ const connection = require('../data/db');
 
 const search = (req, res) => {
 
-    const { query, order = 'asc' } = req.query;
+    const { query, order } = req.query;
 
-    const sql = `
+    let sql = `
     SELECT products.*, categories.category_name
     FROM products
     JOIN categories ON products.category_id = categories.id
     WHERE products.product_name LIKE ?
     OR products.product_description LIKE ?
-    ORDER BY products.price ${order.toUpperCase() === 'DESC' ? 'DESC' : 'ASC'}
-    `
+`;
+
+    const params = [`%${query}%`, `%${query}%`];
+
+    // Se l'utente ha specificato un ordinamento, lo aggiungiamo
+    if (order && order.toLowerCase() === 'desc') {
+        sql += ` ORDER BY products.price DESC`;
+    } else if (order && order.toLowerCase() === 'asc') {
+        sql += ` ORDER BY products.price ASC`;
+    }
 
     connection.query(sql, [`%${query}%`, `%${query}%`], (err, results) => {
 
