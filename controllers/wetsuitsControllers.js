@@ -12,7 +12,7 @@ const index = (req, res) => {
         FROM products
         INNER JOIN wetsuits ON products.id = wetsuits.product_id
         INNER JOIN categories ON products.category_id = categories.id
-        WHERE categories.category_name = 'wetsuits'
+        WHERE categories.category_name = 'Wetsuits'
     `;
 
     const params = [];
