@@ -2,6 +2,11 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
+/* CORS */
+
+const cors = require('cors');
+
+app.use(cors({ origin: 'http://localhost:5173/' }));
 
 
 /* Import Products */
