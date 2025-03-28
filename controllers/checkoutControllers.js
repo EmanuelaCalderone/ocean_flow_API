@@ -1,15 +1,8 @@
+const connection = require('../data/db');
 const { sendOrderConfirmation } = require('../utils/mailer');
 
 const store = (req, res) => {
-    const { cart, customer, discountCode } = req.body;
-
-    // Log per verificare cosa arriva dal frontend
-    console.log("Dati ricevuti dal frontend:", req.body);
-
-    if (!cart || !customer || !customer.email) {
-        console.error("Errore: dati mancanti nel corpo della richiesta");
-        return res.status(400).json({ error: 'Dati mancanti: cart o customer' });
-    }
+    const { cart, customer, discountCode, purchaseDate, deliveryDate, paymentMethod } = req.body;
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -18,30 +11,62 @@ const store = (req, res) => {
         const discountedTotal = subtotal - discountAmount;
         const shipping = discountedTotal > 100 ? 0 : 10;
         const total = discountedTotal + shipping;
-        const orderDetails = { cart, customer, total, discountCode };
+        const orderDetails = { cart, customer, total, discountCode, purchaseDate, deliveryDate };
 
-        // Log per vedere l'ordine dettagliato
-        console.log("Dettagli ordine:", orderDetails);
+        // Inserisci i dati nel database
+        const sql = `
+            INSERT INTO orders (
+                payment_method, 
+                purchase_date, 
+                shipping_date, 
+                checkout_total, 
+                user_name, 
+                user_last_name, 
+                user_email, 
+                user_address, 
+                user_tax_code, 
+                user_telephone
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
 
-        sendOrderConfirmation(customer.email, orderDetails)
-            .then(() => {
-                console.log('Email inviata con successo');
-                res.json({
-                    message: 'Order received and confirmation email sent',
-                    subtotal,
-                    discountAmount,
-                    shipping,
-                    total
+        const values = [
+            customer.paymentMethod,    // payment_method
+            purchaseDate,            // purchase_date
+            deliveryDate,            // shipping_date
+            total,                   // checkout_total
+            customer.name,           // user_name
+            customer.surname,       // user_last_name
+            customer.email,          // user_email
+            customer.address,        // user_address
+            customer.taxCode,        // user_tax_code
+            customer.phone          // user_telephone
+        ];
+
+        connection.query(sql, values, (err, result) => {
+            if (err) {
+                console.error('Database error:', err);
+                return res.status(500).json({ error: 'Errore nel salvataggio dell\'ordine' });
+            }
+
+            // Invia la conferma dell'ordine via email
+            sendOrderConfirmation(customer.email, orderDetails)
+                .then(() => {
+                    res.json({
+                        message: 'Ordine ricevuto e email di conferma inviata',
+                        subtotal,
+                        discountAmount,
+                        shipping,
+                        total
+                    });
+                })
+                .catch((error) => {
+                    console.error('Errore invio email:', error);
+                    res.status(500).json({ error: 'Errore invio email' });
                 });
-            })
-            .catch((error) => {
-                console.error('Errore invio email:', error);
-                res.status(500).json({ error: 'Errore durante l\'invio delle email' });
-            });
-    };
+        });
 
-    // Log per verificare la presenza del codice sconto
-    console.log("Codice sconto ricevuto:", discountCode);
+        console.log(orderDetails);
+    };
 
     if (discountCode) {
         const sql = `
@@ -52,13 +77,9 @@ const store = (req, res) => {
         `;
 
         connection.query(sql, [discountCode], (err, results) => {
-            if (err) {
-                console.error("Errore nella query del database:", err);
-                return res.status(500).json({ error: 'Errore nel database' });
-            }
+            if (err) return res.status(500).json({ error: 'Database error' });
 
             if (results.length === 0) {
-                console.error("Codice sconto non valido o scaduto");
                 return res.status(400).json({ error: 'Codice sconto non valido o scaduto' });
             }
 
