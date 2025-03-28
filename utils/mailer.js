@@ -1,18 +1,18 @@
-// utils/mailer.js
 const nodemailer = require('nodemailer');
 
+// Configurazione per Gmail con App Password
 const transporter = nodemailer.createTransport({
-    host: 'sandbox.smtp.mailtrap.io',
-    port: 587,
+    service: 'Gmail',
     auth: {
-        user: 'fe8a352d4f1e75',
-        pass: 'd71a6128ec617c'
+        user: 'surfoceanoceanflow@gmail.com', // Email Gmail reale
+        pass: 'nzna zqse zhbw jyqf ' // App Password generata
     }
 });
 
 const sendOrderConfirmation = (customerEmail, orderDetails) => {
     const { customer, cart, total } = orderDetails;
 
+    // Crea la lista dei prodotti
     const itemsList = cart.map(item => `- ${item.product_name} x${item.quantity}`).join('\n');
 
     const message =
@@ -21,30 +21,43 @@ const sendOrderConfirmation = (customerEmail, orderDetails) => {
 Dettagli ordine:
 ${itemsList}
 
-Totale: €${total}`
-        ;
+Totale: €${total}`;
 
-    // invia prima al cliente
+    // Email per il cliente
     const customerMail = {
-        from: '"Oceanflow" <no-reply@oceanflow.com>',
+        from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
         to: customerEmail,
         subject: 'Conferma Ordine - Oceanflow',
         text: message
     };
 
-    // invia anche al venditore
+    // Email per il venditore
     const vendorMail = {
-        from: '"Oceanflow" <no-reply@oceanflow.com>',
+        from: '"Oceanflow" <surfoceanflow@gmail.com>',
         to: 'vendite@oceanflow.com',
         subject: `Nuovo ordine da ${customer.name}`,
         text: message
     };
 
-    // ritorna una Promise che aspetta entrambi gli invii
+    // Invia le email al cliente e al venditore
     return Promise.all([
-        transporter.sendMail(customerMail),
+        transporter.sendMail(customerMail)
+            .then(info => console.log("Email al cliente inviata:", info))
+            .catch(error => console.error("Errore invio email al cliente:", error)),
         transporter.sendMail(vendorMail)
+            .then(info => console.log("Email al venditore inviata:", info))
+            .catch(error => console.error("Errore invio email al venditore:", error))
     ]);
 };
+
+// Test di invio email
+transporter.sendMail({
+    from: '"Test Oceanflow" <surfoceanflow@gmail.com>',
+    to: 'emanuu_ela@libero.it', // Inserisci un indirizzo reale (tuo)
+    subject: 'Test Email',
+    text: 'Questa è una email di test.'
+})
+    .then(info => console.log('Email di test inviata:', info))
+    .catch(error => console.error('Errore invio email di test:', error));
 
 module.exports = { sendOrderConfirmation };

@@ -1,8 +1,15 @@
-const connection = require('../data/db');
 const { sendOrderConfirmation } = require('../utils/mailer');
 
 const store = (req, res) => {
     const { cart, customer, discountCode } = req.body;
+
+    // Log per verificare cosa arriva dal frontend
+    console.log("Dati ricevuti dal frontend:", req.body);
+
+    if (!cart || !customer || !customer.email) {
+        console.error("Errore: dati mancanti nel corpo della richiesta");
+        return res.status(400).json({ error: 'Dati mancanti: cart o customer' });
+    }
 
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -13,7 +20,8 @@ const store = (req, res) => {
         const total = discountedTotal + shipping;
         const orderDetails = { cart, customer, total, discountCode };
 
-
+        // Log per vedere l'ordine dettagliato
+        console.log("Dettagli ordine:", orderDetails);
 
         sendOrderConfirmation(customer.email, orderDetails)
             .then(() => {
@@ -28,9 +36,12 @@ const store = (req, res) => {
             })
             .catch((error) => {
                 console.error('Errore invio email:', error);
-                res.status(500).json({ error: 'Errore invio email' });
+                res.status(500).json({ error: 'Errore durante l\'invio delle email' });
             });
     };
+
+    // Log per verificare la presenza del codice sconto
+    console.log("Codice sconto ricevuto:", discountCode);
 
     if (discountCode) {
         const sql = `
@@ -41,10 +52,14 @@ const store = (req, res) => {
         `;
 
         connection.query(sql, [discountCode], (err, results) => {
-            if (err) return res.status(500).json({ error: 'Database error' });
+            if (err) {
+                console.error("Errore nella query del database:", err);
+                return res.status(500).json({ error: 'Errore nel database' });
+            }
 
             if (results.length === 0) {
-                return res.status(400).json({ error: 'Invalid or expired discount code' });
+                console.error("Codice sconto non valido o scaduto");
+                return res.status(400).json({ error: 'Codice sconto non valido o scaduto' });
             }
 
             const discount = results[0];
