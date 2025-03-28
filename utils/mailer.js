@@ -4,8 +4,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: 'surfoceanoceanflow@gmail.com', // Email Gmail reale
-        pass: 'nzna zqse zhbw jyqf ' // App Password generata
+        user: 'surfoceanflow@gmail.com', // Email Gmail reale
+        pass: 'nzna zqse zhbw jyqf' // App Password generata
     }
 });
 
@@ -25,8 +25,8 @@ Totale: €${total}`;
 
     // Email per il cliente
     const customerMail = {
-        from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
-        to: customerEmail,
+        from: '"Oceanflow" <surfoceanflow@gmail.com>',
+        to: customerEmail, // Usa l'email dinamica del cliente
         subject: 'Conferma Ordine - Oceanflow',
         text: message
     };
@@ -34,7 +34,7 @@ Totale: €${total}`;
     // Email per il venditore
     const vendorMail = {
         from: '"Oceanflow" <surfoceanflow@gmail.com>',
-        to: 'vendite@oceanflow.com',
+        to: 'vendite@oceanflow.com', // Email del venditore (statica)
         subject: `Nuovo ordine da ${customer.name}`,
         text: message
     };
@@ -50,14 +50,17 @@ Totale: €${total}`;
     ]);
 };
 
-// Test di invio email
-transporter.sendMail({
-    from: '"Test Oceanflow" <surfoceanflow@gmail.com>',
-    to: 'emanuu_ela@libero.it', // Inserisci un indirizzo reale (tuo)
-    subject: 'Test Email',
-    text: 'Questa è una email di test.'
+// Test di invio email (usa un'email dinamica per simulare l'input del cliente)
+const customerTestEmail = 'emanuu_ela@libero.it'; // Sostituisci con una email di test valida
+sendOrderConfirmation(customerTestEmail, {
+    customer: { name: "Emanuela", email: customerTestEmail },
+    cart: [
+        { product_name: "Surfboard", quantity: 1, price: 500 },
+        { product_name: "Wetsuit", quantity: 1, price: 300 }
+    ],
+    total: 800
 })
-    .then(info => console.log('Email di test inviata:', info))
-    .catch(error => console.error('Errore invio email di test:', error));
+    .then(() => console.log("Test completato: email inviate con successo"))
+    .catch(error => console.error("Errore nel test di invio email:", error));
 
 module.exports = { sendOrderConfirmation };
