@@ -4,7 +4,7 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: 'surfoceanflow@gmail.com', // Email Gmail reale
+        user: 'surfoceanoceanflow@gmail.com', // Email Gmail reale
         pass: 'nzna zqse zhbw jyqf' // App Password generata
     }
 });
@@ -25,16 +25,16 @@ Totale: €${total}`;
 
     // Email per il cliente
     const customerMail = {
-        from: '"Oceanflow" <surfoceanflow@gmail.com>',
-        to: customerEmail, // Usa l'email dinamica del cliente
+        from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
+        to: customerEmail, // Email dinamica del cliente (dall'input)
         subject: 'Conferma Ordine - Oceanflow',
         text: message
     };
 
     // Email per il venditore
     const vendorMail = {
-        from: '"Oceanflow" <surfoceanflow@gmail.com>',
-        to: 'vendite@oceanflow.com', // Email del venditore (statica)
+        from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
+        to: 'surfoceanoceanflow@gmail.com', // Email statica del venditore
         subject: `Nuovo ordine da ${customer.name}`,
         text: message
     };
@@ -49,18 +49,5 @@ Totale: €${total}`;
             .catch(error => console.error("Errore invio email al venditore:", error))
     ]);
 };
-
-// Test di invio email (usa un'email dinamica per simulare l'input del cliente)
-const customerTestEmail = 'emanuu_ela@libero.it'; // Sostituisci con una email di test valida
-sendOrderConfirmation(customerTestEmail, {
-    customer: { name: "Emanuela", email: customerTestEmail },
-    cart: [
-        { product_name: "Surfboard", quantity: 1, price: 500 },
-        { product_name: "Wetsuit", quantity: 1, price: 300 }
-    ],
-    total: 800
-})
-    .then(() => console.log("Test completato: email inviate con successo"))
-    .catch(error => console.error("Errore nel test di invio email:", error));
 
 module.exports = { sendOrderConfirmation };
