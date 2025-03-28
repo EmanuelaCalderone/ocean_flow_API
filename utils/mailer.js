@@ -10,23 +10,31 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendOrderConfirmation = (customerEmail, orderDetails) => {
-    const { customer, cart, total } = orderDetails;
+    const { customer, cart, total, discountCode } = orderDetails;
 
-    // Crea la lista dei prodotti
-    const itemsList = cart.map(item => `- ${item.product_name} x${item.quantity}`).join('\n');
+    // Creazione del messaggio con tutte le informazioni dell'ordine
+    const message = `
+        Grazie per il tuo ordine, ${customer.name} ${customer.surname}!
 
-    const message =
-        `Grazie per il tuo ordine, ${customer.name}!
+        **Dettagli dell'Ordine**
+        Nome: ${customer.name}
+        Cognome: ${customer.surname}
+        Email: ${customer.email}
+        Indirizzo: ${customer.address}
+        Telefono: ${customer.phone}
+        Metodo di Pagamento: ${customer.paymentMethod}
 
-Dettagli ordine:
-${itemsList}
+        Codice Sconto Utilizzato: ${discountCode || 'Nessuno'}
+        Totale: €${total.toFixed(2)}
 
-Totale: €${total}`;
+        **Articoli Ordinati**
+        ${cart.map(item => `- ${item.product_name} x${item.quantity} (€${item.price})`).join('\n')}
+    `;
 
     // Email per il cliente
     const customerMail = {
         from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
-        to: customerEmail, // Email dinamica del cliente (dall'input)
+        to: customerEmail, // Email dinamica del cliente
         subject: 'Conferma Ordine - Oceanflow',
         text: message
     };
@@ -35,7 +43,7 @@ Totale: €${total}`;
     const vendorMail = {
         from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
         to: 'surfoceanoceanflow@gmail.com', // Email statica del venditore
-        subject: `Nuovo ordine da ${customer.name}`,
+        subject: `Nuovo ordine da ${customer.name} ${customer.surname}`,
         text: message
     };
 
