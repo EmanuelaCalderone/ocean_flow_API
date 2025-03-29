@@ -30,7 +30,7 @@ const store = (req, res) => {
         `;
 
         const values = [
-            customer.paymentMethod,    // payment_method
+            paymentMethod,    // payment_method
             purchaseDate,            // purchase_date
             deliveryDate,            // shipping_date
             total,                   // checkout_total
