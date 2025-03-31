@@ -125,9 +125,47 @@ const show = (req, res) => {
 
 };
 
+/* RELATED PRODUCTS */
 
+const getRelatedProducts = (req, res) => {
+    const { id } = req.params;
+
+    // Recupera la categoria del prodotto specificato
+    const categorySql = `
+        SELECT category_id 
+        FROM products 
+        WHERE id = ?
+    `;
+
+    connection.query(categorySql, [id], (err, result) => {
+        if (err || result.length === 0) {
+            return res.status(500).json({ error: 'Errore nel recupero categoria' });
+        }
+
+        const categoryId = result[0].category_id;
+
+        // Recupera altri prodotti nella stessa categoria, escludendo quello corrente
+        const relatedSql = `
+            SELECT products.*, categories.category_name
+            FROM products
+            INNER JOIN categories ON products.category_id = categories.id
+            WHERE products.category_id = ? AND products.id != ?
+            LIMIT 4
+        `;
+
+        connection.query(relatedSql, [categoryId, id], (err, results) => {
+            if (err) {
+                return res.status(500).json({ error: 'Errore nel recupero prodotti correlati' });
+            }
+
+            res.json(results);
+        });
+    });
+};
 
 module.exports = {
     index,
-    show
+    show,
+    getRelatedProducts
 };
+
