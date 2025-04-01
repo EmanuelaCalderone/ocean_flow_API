@@ -7,8 +7,11 @@ const index = (req, res) => {
 
     const { minPrice, maxPrice } = req.query;
 
+
     let sql = `
-        SELECT products.*
+        SELECT 
+        products.*, 
+        wetsuits.* 
         FROM products
         INNER JOIN wetsuits ON products.id = wetsuits.product_id
         INNER JOIN categories ON products.category_id = categories.id
