@@ -1,9 +1,10 @@
 const mysql = require('mysql2');
+require('dotenv').config();
 
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Senna22,',
+    password: 'PassWord8!',
     database: 'ocean_flow_db'
 });
 
