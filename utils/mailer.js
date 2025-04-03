@@ -29,7 +29,31 @@ const sendOrderConfirmation = (customerEmail, orderDetails) => {
 
         **Articoli Ordinati**
         ${cart.map(item => `- ${item.product_name} x${item.quantity} (€${item.price})`).join('\n')}
+
+        La gestione della spedizione avviene solitamente entro due giorni dalla ricezione dell'ordine. Una volta che il tuo pacco sarà stato preparato per la spedizione, riceverai un'email di conferma con i dettagli del tracciamento, così potrai monitorare il percorso del tuo ordine in tempo reale.
+
+        Ti ringraziamo per aver scelto i nostri servizi. Per qualsiasi domanda o necessità di assistenza, non esitare a contattarci rispondendo a questa email o visitando la nostra pagina di supporto.
+
+        OCEANFLOW
     `;
+
+    // Creazione del messaggio con tutte le informazioni dell'ordine
+    const newOrder = `
+        Hai ricevuto un nuovo ordine!
+
+        **Dettagli dell'Ordine**
+        Nome: ${customer.name}
+        Cognome: ${customer.surname}
+        Email: ${customer.email}
+        Indirizzo: ${customer.address}
+        Telefono: ${customer.phone}
+        Metodo di Pagamento: ${customer.paymentMethod}
+
+        Codice Sconto Utilizzato: ${discountCode || 'Nessuno'}
+        Totale: €${total.toFixed(2)}
+
+        **Articoli Ordinati**
+        ${cart.map(item => `- ${item.product_name} x${item.quantity} (€${item.price})`).join('\n')}`;
 
     // Email per il cliente
     const customerMail = {
@@ -44,7 +68,7 @@ const sendOrderConfirmation = (customerEmail, orderDetails) => {
         from: '"Oceanflow" <surfoceanoceanflow@gmail.com>',
         to: 'surfoceanoceanflow@gmail.com', // Email statica del venditore
         subject: `Nuovo ordine da ${customer.name} ${customer.surname}`,
-        text: message
+        text: newOrder
     };
 
     // Invia le email al cliente e al venditore
